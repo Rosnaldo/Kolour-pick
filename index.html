@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kolour</title>
+</head>
+<style>
+  html, body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .board {
+    width: 500px;
+    height: 500px;
+    background-color: white;
+    border:solid 1px black;
+    display: grid;
+    grid-template-rows: repeat(16, 1fr);
+  }
+
+  .board > .line {
+    width: 100%;
+    height: 100%;
+    display: grid;
+    grid-template-columns: repeat(16, 1fr);
+  }
+
+  .board > .line > .square {
+    width: 100%;
+    height: 100%;
+    border: black solid 1px;
+  }
+
+  table {
+    width: 23%;
+    height: 7%;
+    margin: 2%;
+  }
+
+  td {
+    border-radius: 40px;
+    border: solid 1px black;
+    cursor: pointer;
+  }
+
+  .red {
+    background-color: red;
+  }
+
+  .blue {
+    background-color: blue;
+  }
+
+  .green {
+    background-color: green;
+  }
+
+  .yellow {
+    background-color: yellow;
+  }
+
+  .purple {
+    background-color: purple;
+  }
+
+  .white {
+    border: none;
+  }
+</style>
+<body>
+  <h3>Clique na paleta de cores até ocupar o quadro inteiro</h3>
+  <table class="palete">
+    <tr>
+      <td class="red selectable" />
+      <td class="blue selectable" />
+      <td class="yellow selectable" />
+      <td class="green selectable" />
+      <td class="purple selectable" />
+      <td class="white" />
+      <td class="selected" />
+    </tr>
+  </table>
+  <div class="board">
+  </div>
+</body>
+
+<script>
+  const palete = ['red', 'blue', 'yellow', 'green', 'purple'];
+  
+  const boardEl = document.querySelector('.board');
+  for (let i = 0; i < 16; i++) {
+    const line = document.createElement('div');
+    line.setAttribute('class', 'line');
+    boardEl.appendChild(line);
+    for (let j = 0; j < 16; j++) {
+      const square = document.createElement('div');
+      const boardLine = boardEl.querySelectorAll('.line')[i];
+      square.setAttribute('class', 'square');
+      square.setAttribute('name', `${i}-${j}`);
+      boardLine.appendChild(square);
+    }
+  }
+
+  const boardLines = boardEl.querySelectorAll('.line');
+
+  for (let i = 0; i < 16; i++) {
+    for (let j = 0; j < 16; j++) {
+      const index = Math.floor(Math.random() * 5);
+      boardLines[i]
+        .querySelectorAll('.square')[j]
+        .style.backgroundColor = palete[index];
+    }
+  }
+
+  const table = document.querySelector('table');
+  const colors = table.querySelector('tr')
+    .querySelectorAll('td.selectable');
+
+  const selectedEl = document.querySelector('.selected');
+
+  colors.forEach((elem) => {
+    elem.addEventListener('click', (e) => {
+      const [color] = e.target.getAttribute('class').split(' ');
+      selectedEl.style.backgroundColor = color;
+      spreadColor(color);
+    });
+  });
+
+  const init = boardLines[0].querySelectorAll('.square')[0];
+
+  const spreadColor = (color) => {
+    let x = 0;
+    let y = 0;
+    const initColor = init.style.backgroundColor;
+    init.style.backgroundColor = color;
+
+    const down = (x2, y2) => {
+      const square = boardLines[x2 + 1].querySelectorAll('.square')[y2];
+      if (square.style.backgroundColor === initColor) {
+        square.style.backgroundColor = color;
+        main(x2 + 1, y2);
+      }
+    };
+
+    const right = (x2, y2) => {
+      const square = boardLines[x2].querySelectorAll('.square')[y2 + 1];
+      if (square.style.backgroundColor === initColor) {
+        square.style.backgroundColor = color;
+        main(x2, y2 + 1);
+      }
+    };
+
+    const main = (x2, y2) => {
+      right(x2, y2);
+      down(x2, y2);
+    };
+
+    main(x, y);
+  };
+
+</script>
+</html>
